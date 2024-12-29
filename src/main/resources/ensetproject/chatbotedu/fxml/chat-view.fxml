@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ensetproject.chatbotedu.controller.ChatController"
+            prefHeight="600.0" prefWidth="800.0">
+
+    <!-- Conteneur principal -->
+    <VBox spacing="10" AnchorPane.topAnchor="10.0" AnchorPane.bottomAnchor="10.0"
+          AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" style="-fx-padding: 10;">
+
+        <!-- Titre -->
+        <Label text="Chatbot Éducatif"
+               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-alignment: center;"
+               VBox.vgrow="NEVER" />
+
+        <!-- Conteneur principal avec une disposition similaire à ChatGPT -->
+        <HBox spacing="10" VBox.vgrow="ALWAYS">
+            <!-- Colonne Historique -->
+            <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f5f5f5;" HBox.hgrow="NEVER" prefWidth="200">
+                <Label text="Historique" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                <ListView fx:id="historyListView" VBox.vgrow="ALWAYS" style="-fx-border-color: lightgray;" />
+            </VBox>
+
+            <!-- Zone de Chat -->
+            <VBox spacing="10" HBox.hgrow="ALWAYS">
+                <Label text="Discussion" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                <ListView fx:id="chatListView" VBox.vgrow="ALWAYS" style="-fx-border-color: lightgray; -fx-background-color: white;" />
+
+                <!-- Ligne pour l'entrée utilisateur -->
+                <HBox spacing="10">
+                    <TextArea fx:id="chatTextArea" promptText="Posez votre question ici..." HBox.hgrow="ALWAYS"
+                              style="-fx-padding: 10; -fx-background-radius: 20; -fx-border-radius: 20;"
+                              maxHeight="50" />
+                    <Button text="Envoyer" onAction="#handleSendMessage"
+                            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-border-radius: 10; -fx-padding: 10 20;" />
+                </HBox>
+
+                <!-- Section pour sélection de fichier -->
+                <HBox spacing="10">
+                    <Button text="Choisir un fichier" onAction="#handleChooseFile"
+                            style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-border-radius: 10; -fx-padding: 10 20;" />
+                    <Label fx:id="fileLabel" text="Aucun fichier sélectionné"
+                           style="-fx-font-size: 14px; -fx-text-fill: gray;" />
+                </HBox>
+
+                <!-- Section pour sélection d'image -->
+                <HBox spacing="10">
+                    <Button text="Choisir une image" onAction="#handleChooseImage"
+                            style="-fx-background-color: #FF5722; -fx-text-fill: white; -fx-border-radius: 10; -fx-padding: 10 20;" />
+                    <Label fx:id="imageLabel" text="Aucune image sélectionnée"
+                           style="-fx-font-size: 14px; -fx-text-fill: gray;" />
+                </HBox>
+            </VBox>
+        </HBox>
+    </VBox>
+</AnchorPane>

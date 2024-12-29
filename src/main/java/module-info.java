@@ -9,7 +9,13 @@ module ensetproject.chatbotedu {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.sql;
+    requires org.apache.commons.lang3;
 
     opens ensetproject.chatbotedu to javafx.fxml;
     exports ensetproject.chatbotedu;
+
+    exports ensetproject.chatbotedu.controller; // Cette ligne permet d'exporter le package controller
+    // Ouvrir le package 'controller' pour que FXMLLoader puisse y accéder via reflection
+    opens ensetproject.chatbotedu.controller to javafx.fxml;
 }
