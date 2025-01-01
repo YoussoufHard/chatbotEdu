@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="94166864-3e4d-40f4-ae86-9d67334af43d" name="Changes" comment="chat bot just set with gemini api , no specification for generation domain yet">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/controller/ChatController.java" afterDir="false" />
-    </list>
+    <list default="true" id="94166864-3e4d-40f4-ae86-9d67334af43d" name="Changes" comment="chat bot just set with gemini api , no specification for generation domain yet" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -64,6 +61,12 @@
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Lenovo\IdeaProjects\chatbotEdu\src\main\java\ensetproject\chatbotedu\database" />
+      <recent name="C:\Users\Lenovo\IdeaProjects\chatbotEdu\src\main\java\ensetproject\chatbotedu\controller" />
+    </key>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -89,7 +92,15 @@
       <option name="project" value="LOCAL" />
       <updated>1735506751065</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="chat bot just set with gemini api , no specification for generation domain yet">
+      <option name="closed" value="true" />
+      <created>1735737436363</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1735737436363</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
