@@ -73,8 +73,8 @@ public class ChatController {
     public void handleSendMessage() {
         String userMessage = chatTextArea.getText().trim();
 
-        if (userMessage.isEmpty()) {
-            chatMessages.add("Chatbot : Veuillez entrer un message valide.");
+        if (userMessage.isEmpty() && selectedFile == null && selectedImage == null) {
+            chatMessages.add("Chatbot : Veuillez entrer un message ou sélectionner un fichier.");
             return;
         }
 
@@ -84,6 +84,13 @@ public class ChatController {
 
         // Sauvegarder le message utilisateur dans la base de données
         saveMessageToDatabase(userMessage, "user");
+
+        // Envoyer le fichier sélectionné (s'il existe) et le message
+        if (selectedFile != null) {
+            sendFileToServer(selectedFile, userMessage);
+        } else if (selectedImage != null) {
+            sendFileToServer(selectedImage, userMessage);
+        }
 
         // Générer la réponse du chatbot via le serveur Python
         String response = generateResponseFromServer(userMessage);
@@ -199,7 +206,7 @@ public class ChatController {
                 // Extraire un résumé ou des mots-clés pour l'historique
                 String summary = createSummaryFromMessage(message);
                 if(sender.equals("user"))
-                  historyMessages.add(summary);  // Ajouter au message d'historique
+                    historyMessages.add(summary);  // Ajouter au message d'historique
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -225,7 +232,6 @@ public class ChatController {
         return summary.toString().trim();
     }
 
-
     // Méthode pour sélectionner un fichier
     @FXML
     public void handleChooseFile() {
@@ -247,6 +253,90 @@ public class ChatController {
             imageLabel.setText("Image sélectionnée : " + selectedImage.getName());
         }
     }
+
+    private void sendFileToServer(File file, String message) {
+        if (file == null) {
+            System.out.println("Aucun fichier sélectionné.");
+            return;
+        }
+
+        if (message == null || message.trim().isEmpty()) {
+            System.out.println("Le message ne peut pas être vide.");
+            return;
+        }
+
+        // URL du serveur qui reçoit le fichier
+        String serverUrl = "http://localhost:5000/upload";
+
+        try {
+            // Création de la connexion HTTP
+            HttpURLConnection connection = (HttpURLConnection) new URL(serverUrl).openConnection();
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW");
+
+            OutputStream outputStream = connection.getOutputStream();
+            DataOutputStream writer = new DataOutputStream(outputStream);
+
+            // Envoi du fichier
+            writer.writeBytes("------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n");
+            writer.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"\r\n");
+            writer.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
+
+            // Lire le fichier et l'écrire dans le flux
+            FileInputStream fileInputStream = new FileInputStream(file);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                writer.write(buffer, 0, bytesRead);
+            }
+            fileInputStream.close();
+
+            // Ajouter le message au corps de la requête
+            writer.writeBytes("\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n");
+            writer.writeBytes("Content-Disposition: form-data; name=\"message\"\r\n\r\n");
+            writer.writeBytes(message + "\r\n");
+
+            writer.writeBytes("\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n");
+            writer.flush();
+
+            // Vérifier la réponse du serveur
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                System.out.println("Fichier et message envoyés avec succès !");
+            } else {
+                System.err.println("Erreur lors de l'envoi, code de réponse: " + responseCode);
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // Méthode pour envoyer l'image sélectionnée au serveur
+    @FXML
+    public void handleSendImage() {
+        String message = chatTextArea.getText().trim();  // Récupère le message de l'utilisateur
+        if (selectedImage != null) {  // Vérifie qu'un fichier a été sélectionné
+            sendFileToServer(selectedImage, message);  // Envoie l'image avec le message
+        } else {
+            System.out.println("Aucune image sélectionnée.");
+        }
+    }
+
+
+    // Méthode pour envoyer le fichier sélectionné au serveur
+    @FXML
+    public void handleSendFile() {
+        String message = chatTextArea.getText().trim();  // Récupère le message de l'utilisateur
+        if (selectedFile != null) {  // Vérifie qu'un fichier a été sélectionné
+            sendFileToServer(selectedFile, message);  // Envoie le fichier avec le message
+        } else {
+            System.out.println("Aucun fichier sélectionné.");
+        }
+    }
+
 
     private String formatMessageToMaxLength(String message) {
         StringBuilder formattedMessage = new StringBuilder();
@@ -271,5 +361,4 @@ public class ChatController {
 
         return formattedMessage.toString();
     }
-
 }
