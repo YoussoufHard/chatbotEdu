@@ -11,6 +11,7 @@ module ensetproject.chatbotedu {
     requires eu.hansolo.tilesfx;
     requires java.sql;
     requires org.apache.commons.lang3;
+    requires org.json;
 
     opens ensetproject.chatbotedu to javafx.fxml;
     exports ensetproject.chatbotedu;

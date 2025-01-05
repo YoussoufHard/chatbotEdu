@@ -14,9 +14,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import ensetproject.chatbotedu.database.DatabaseConnection;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class ChatController {
 
@@ -34,6 +38,10 @@ public class ChatController {
 
     @FXML
     private Label imageLabel;
+
+    @FXML
+    private TextArea documentTextArea;
+
 
     private ObservableList<String> historyMessages = FXCollections.observableArrayList();
     private ObservableList<String> chatMessages = FXCollections.observableArrayList();
@@ -93,26 +101,38 @@ public class ChatController {
         }
 
         // Générer la réponse du chatbot via le serveur Python
-        String response = generateResponseFromServer(userMessage);
+        RAGResponse ragResponse = generateResponseFromServer(userMessage);
 
-        if (response != null) {
+        if (ragResponse != null) {
+            // Récupérer la réponse et les documents consultés
+            String chatbotResponse = ragResponse.getResponse();
+            List<String> consultedDocuments = ragResponse.getConsultedDocuments();
+
             // Convertir la réponse en texte lisible
-            response = convertUnicodeToReadable(response);
+            chatbotResponse = convertUnicodeToReadable(chatbotResponse);
 
             // Formater la réponse pour qu'elle n'excède pas 100 caractères par ligne
-            String formattedResponse = formatMessageToMaxLength(response);
+            String formattedResponse = formatMessageToMaxLength(chatbotResponse);
 
             // Ajouter le message du chatbot à la liste
             chatMessages.add("Chatbot : " + formattedResponse);
 
             // Sauvegarder la réponse du chatbot dans la base de données
-            saveMessageToDatabase(response, "chatbot");
+            saveMessageToDatabase(chatbotResponse, "chatbot");
+
+            // Ajouter les documents consultés au TextArea
+            if (!consultedDocuments.isEmpty()) {
+                String documentsText = String.join("\n", consultedDocuments);
+                documentTextArea.setText(documentsText); // Mettre à jour le TextArea
+            } else {
+                documentTextArea.setText("Aucun document consulté."); // Message par défaut
+            }
 
             // Ajouter à l'historique
-            // Extraire un résumé ou des mots-clés pour l'historique
             String summary = createSummaryFromMessage(formattedUserMessage);
-            historyMessages.add(summary);  // Ajouter au message d'historique
-        } else {
+            historyMessages.add(summary); // Ajouter au message d'historique
+        }
+         else {
             chatMessages.add("Chatbot : Une erreur s'est produite lors de la génération de la réponse.");
         }
 
@@ -120,17 +140,65 @@ public class ChatController {
         chatTextArea.clear();
     }
 
-    private String generateResponseFromServer(String question) {
+
+    // Méthode pour afficher un message de confirmation avant de supprimer l'historique
+    public void handleDeleteHistory() {
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirmation");
+        confirmationAlert.setHeaderText("Êtes-vous sûr de vouloir supprimer l'historique ?");
+        confirmationAlert.setContentText("Cette action est irréversible.");
+
+        // Action si l'utilisateur confirme
+        confirmationAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                deleteChatHistory();
+                historyMessages.clear();  // Vider la vue de l'historique dans l'interface utilisateur
+                chatMessages.clear();
+            }
+        });
+    }
+
+    // Méthode pour supprimer l'historique de la base de données
+    private void deleteChatHistory() {
+        String query = "DELETE FROM chat_history";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class RAGResponse {
+        private final String response;
+        private final List<String> consultedDocuments;
+
+        public RAGResponse(String response, List<String> consultedDocuments) {
+            this.response = response;
+            this.consultedDocuments = consultedDocuments;
+        }
+
+        public String getResponse() {
+            return response;
+        }
+
+        public List<String> getConsultedDocuments() {
+            return consultedDocuments;
+        }
+    }
+
+    public RAGResponse generateResponseFromServer(String question) {
         try {
             // Configurer la connexion HTTP
-            URL url = new URL("http://localhost:5000/generate"); // Adresse du serveur Python
+            URL url = new URL("http://localhost:5000/rag"); // Adresse du serveur Python
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setDoOutput(true);
 
             // Préparer la requête JSON
-            String jsonInput = "{\"prompt\": \"" + question + "\"}";
+            String jsonInput = "{\"query\": \"" + question + "\"}";
 
             // Envoyer les données
             try (OutputStream os = connection.getOutputStream()) {
@@ -141,13 +209,14 @@ public class ChatController {
             // Lire la réponse
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                try (Scanner scanner = new Scanner(connection.getInputStream())) {
-                    StringBuilder response = new StringBuilder();
+                try (Scanner scanner = new Scanner(connection.getInputStream(), StandardCharsets.UTF_8)) {
+                    StringBuilder responseBuilder = new StringBuilder();
                     while (scanner.hasNext()) {
-                        response.append(scanner.nextLine());
+                        responseBuilder.append(scanner.nextLine());
                     }
-                    // Extraire et retourner la réponse du chatbot
-                    return parseResponse(response.toString());
+
+                    // Convertir la réponse JSON en objet RAGResponse
+                    return parseResponse(responseBuilder.toString());
                 }
             } else {
                 System.err.println("Erreur serveur : " + responseCode);
@@ -158,14 +227,21 @@ public class ChatController {
         return null;
     }
 
-    private String parseResponse(String jsonResponse) {
-        // Extraire la réponse du JSON retourné
-        if (jsonResponse.contains("\"response\"")) {
-            int startIndex = jsonResponse.indexOf("\"response\":") + 12;
-            int endIndex = jsonResponse.lastIndexOf("\"");
-            return jsonResponse.substring(startIndex, endIndex);
+    private RAGResponse parseResponse(String jsonResponse) {
+        JSONObject jsonObject = new JSONObject(jsonResponse);
+
+        // Extraire la réponse principale
+        String response = jsonObject.getString("response");
+
+        // Extraire les documents consultés
+        JSONArray consultedDocumentsArray = jsonObject.getJSONArray("consulted_documents");
+        List<String> consultedDocuments = new ArrayList<>();
+        for (int i = 0; i < consultedDocumentsArray.length(); i++) {
+            consultedDocuments.add(consultedDocumentsArray.getString(i));
         }
-        return "Erreur dans le traitement de la réponse.";
+
+        // Retourner un objet RAGResponse contenant les deux parties
+        return new RAGResponse(response, consultedDocuments);
     }
 
     // Convertir les réponses Unicode en texte lisible
