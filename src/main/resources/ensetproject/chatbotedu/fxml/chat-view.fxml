@@ -52,7 +52,7 @@
 
                 <!-- Section pour sélection d'image -->
                 <HBox spacing="10">
-                    <Button onAction="#handleChooseImage" style="-fx-background-color: #FF5722; -fx-text-fill: white; -fx-border-radius: 10; -fx-padding: 10 20;" text="Choisir une image" />
+                    <Button onAction="#handleChooseImage" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-border-radius: 10; -fx-padding: 10 20;" text="Choisir une image" />
                     <Label fx:id="imageLabel" style="-fx-font-size: 14px; -fx-text-fill: gray;" text="Aucune image sélectionnée" />
                 </HBox>
             </VBox>
