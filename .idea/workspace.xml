@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="94166864-3e4d-40f4-ae86-9d67334af43d" name="Changes" comment="chat bot just set with gemini api , no specification for generation domain yet">
-      <change beforePath="$PROJECT_DIR$/src/main/resources/ensetproject/chatbotedu/fxml/chat-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/ensetproject/chatbotedu/fxml/chat-view.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/database/database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/database/database.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
