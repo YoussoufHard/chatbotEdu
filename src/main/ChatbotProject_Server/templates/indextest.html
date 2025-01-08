@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+        .document-list {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interface Chatbot</h1>
+    <form id="query-form">
+        <label for="query">Posez une question :</label><br>
+        <input type="text" id="query" name="query" required><br><br>
+        <button type="submit">Poser la question</button>
+    </form>
+
+    <div id="response" class="response"></div>
+    <div id="document-list" class="document-list"></div>
+
+    <script>
+        document.getElementById('query-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Récupérer la question saisie
+            const query = document.getElementById('query').value;
+
+            // Effectuer la requête POST à l'API Flask
+            fetch('http://localhost:5000/rag', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: query })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Afficher la réponse générée
+                const responseDiv = document.getElementById('response');
+                responseDiv.innerHTML = `<strong>Réponse :</strong> ${data.response}`;
+
+                // Afficher les documents consultés
+                const documentListDiv = document.getElementById('document-list');
+                if (data.consulted_documents.length > 0) {
+                    documentListDiv.innerHTML = `<strong>Documents consultés :</strong><ul>${data.consulted_documents.map(doc => `<li>${doc}</li>`).join('')}</ul>`;
+                } else {
+                    documentListDiv.innerHTML = `<strong>Aucun document consulté.</strong>`;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur :', error);
+            });
+        });
+    </script>
+</body>
+</html>
