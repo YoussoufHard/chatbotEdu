@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +18,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
 import ensetproject.chatbotedu.database.DatabaseConnection;
+import okhttp3.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -92,16 +96,16 @@ public class ChatController {
 
         // Sauvegarder le message utilisateur dans la base de données
         saveMessageToDatabase(userMessage, "user");
-
+        RAGResponse ragResponse ;
         // Envoyer le fichier sélectionné (s'il existe) et le message
         if (selectedFile != null) {
-            sendFileToServer(selectedFile, userMessage);
+            ragResponse = sendFileToServer(selectedFile, userMessage);
         } else if (selectedImage != null) {
-            sendFileToServer(selectedImage, userMessage);
+            ragResponse = sendFileToServer(selectedImage, userMessage);
         }
-
-        // Générer la réponse du chatbot via le serveur Python
-        RAGResponse ragResponse = generateResponseFromServer(userMessage);
+        else { // Générer la réponse du chatbot via le serveur Python
+             ragResponse = generateResponseFromServer(userMessage);
+        }
 
         if (ragResponse != null) {
             // Récupérer la réponse et les documents consultés
@@ -136,6 +140,9 @@ public class ChatController {
             chatMessages.add("Chatbot : Une erreur s'est produite lors de la génération de la réponse.");
         }
 
+        // Réinitialiser les labels et les fichiers après l'envoi
+        resetFileSelection();
+        resetImageSelection();
         // Effacer l'aire de texte
         chatTextArea.clear();
     }
@@ -327,68 +334,71 @@ public class ChatController {
         selectedImage = fileChooser.showOpenDialog(new Stage());
         if (selectedImage != null) {
             imageLabel.setText("Image sélectionnée : " + selectedImage.getName());
+            System.out.println("Fichier sélectionné : " + selectedImage.getAbsolutePath());
+            System.out.println("Taille du fichier : " + selectedImage.length());
+        } else {
+            System.err.println("Aucun fichier sélectionné.");
         }
     }
 
-    private void sendFileToServer(File file, String message) {
-        if (file == null) {
-            System.out.println("Aucun fichier sélectionné.");
-            return;
+    public RAGResponse sendFileToServer(File file, String message) {
+        if (file == null || !file.exists() || file.length() == 0) {
+            System.err.println("Le fichier est introuvable ou vide.");
+            return null;
         }
 
-        if (message == null || message.trim().isEmpty()) {
-            System.out.println("Le message ne peut pas être vide.");
-            return;
-        }
-
-        // URL du serveur qui reçoit le fichier
-        String serverUrl = "http://localhost:5000/upload";
+        // Créez un client OkHttp avec un délai de connexion et de lecture plus long
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)  // Augmenter le délai de connexion
+                .readTimeout(60, TimeUnit.SECONDS)     // Augmenter le délai de lecture
+                .writeTimeout(60, TimeUnit.SECONDS)    // Augmenter le délai d'écriture
+                .build();
 
         try {
-            // Création de la connexion HTTP
-            HttpURLConnection connection = (HttpURLConnection) new URL(serverUrl).openConnection();
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW");
+            // Préparer le corps du fichier
+            RequestBody fileBody = RequestBody.create(file, MediaType.parse(getMimeType(file)));
 
-            OutputStream outputStream = connection.getOutputStream();
-            DataOutputStream writer = new DataOutputStream(outputStream);
+            // Construire le corps multipart/form-data
+            MultipartBody.Builder multipartBuilder = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("image", file.getName(), fileBody);
 
-            // Envoi du fichier
-            writer.writeBytes("------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n");
-            writer.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"\r\n");
-            writer.writeBytes("Content-Type: application/octet-stream\r\n\r\n");
-
-            // Lire le fichier et l'écrire dans le flux
-            FileInputStream fileInputStream = new FileInputStream(file);
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                writer.write(buffer, 0, bytesRead);
+            // Ajouter le message si fourni
+            if (message != null && !message.trim().isEmpty()) {
+                multipartBuilder.addFormDataPart("message", message);
             }
-            fileInputStream.close();
 
-            // Ajouter le message au corps de la requête
-            writer.writeBytes("\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n");
-            writer.writeBytes("Content-Disposition: form-data; name=\"message\"\r\n\r\n");
-            writer.writeBytes(message + "\r\n");
+            RequestBody requestBody = multipartBuilder.build();
 
-            writer.writeBytes("\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n");
-            writer.flush();
+            // Créer la requête HTTP
+            Request request = new Request.Builder()
+                    .url("http://localhost:5000/rag") // Remplacez par l'URL de votre API
+                    .post(requestBody)
+                    .build();
 
-            // Vérifier la réponse du serveur
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                System.out.println("Fichier et message envoyés avec succès !");
-            } else {
-                System.err.println("Erreur lors de l'envoi, code de réponse: " + responseCode);
+            // Envoyer la requête et traiter la réponse
+            try (Response response = client.newCall(request).execute()) {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body() != null ? response.body().string() : null;
+                    return parseResponse(responseBody);
+                } else {
+                    System.err.println("Erreur serveur : " + response.code() + " - " + response.message());
+                    if (response.body() != null) {
+                        System.err.println("Détails : " + response.body().string());
+                    }
+                }
             }
-            writer.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
+    // Obtenir le type MIME du fichier
+    private String getMimeType(File file) {
+        String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+        return mimeType != null ? mimeType : "application/octet-stream";
+    }
 
     // Méthode pour envoyer l'image sélectionnée au serveur
     @FXML
@@ -413,6 +423,18 @@ public class ChatController {
         }
     }
 
+
+    // Réinitialiser le label et la variable du fichier
+    private void resetFileSelection() {
+        selectedFile = null;
+        fileLabel.setText("Aucun fichier sélectionné");
+    }
+
+    // Réinitialiser le label et la variable de l'image
+    private void resetImageSelection() {
+        selectedImage = null;
+        imageLabel.setText("Aucune image sélectionnée");
+    }
 
     private String formatMessageToMaxLength(String message) {
         StringBuilder formattedMessage = new StringBuilder();

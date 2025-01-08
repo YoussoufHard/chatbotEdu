@@ -12,6 +12,8 @@ module ensetproject.chatbotedu {
     requires java.sql;
     requires org.apache.commons.lang3;
     requires org.json;
+    requires okhttp3;
+    requires jdk.httpserver;
 
     opens ensetproject.chatbotedu to javafx.fxml;
     exports ensetproject.chatbotedu;

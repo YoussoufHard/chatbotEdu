@@ -4,9 +4,64 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="94166864-3e4d-40f4-ae86-9d67334af43d" name="Changes" comment="chat bot just set with gemini api , no specification for generation domain yet">
+    <list default="true" id="94166864-3e4d-40f4-ae86-9d67334af43d" name="Changes" comment="chat bot with basic rag faiss , remain mages">
+      <change afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/controller/m__controller.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/model/ChatMessage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/model/RAGResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/service/ChatService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/service/FileService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/service/RAGService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/utils/MessageFormatter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/database/database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/database/database.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/1 design patterns-Strategy.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/2 design patterns - Factory.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/2 design patterns - Observer.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/3 design patterns - Decorator.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/5 design patterns - Abstract Factory.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Chapitre introductif _Marketing.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Collections Et Stream JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Entrée Sortie_Java.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/GestionDesExceptions_JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Généricité JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Introduction aux SGBD NoSQL V2.pptx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Javafx.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/LA POLITIQUE DE COMMUNICATION.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/LA POLITIQUE DE DISTRIBUTION.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/LA POLITIQUE DE PRIX.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/LA POLITIQUE DE PRODUIT.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/MongoDB – les bases V2.pptx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/POO_part2.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/POOpart1.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Projet 1 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Projet 2 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Projet 3 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Projet 4 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Projet 5 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Projet 6 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/UML-Diagramme Cas Utilisation-partie2.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/UML-Diagramme CasUtilisation-partie1.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/UML-DiagrammeDeClasses.pptx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/UML-DiagrammeDeSequence.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Virtualisation et Cloud Computing CHAPITRE 1.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/Virtualisation et Cloud Computing CHAPITRE 2.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/introduction_JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/tableau_chaines JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/tp2_poo JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/tp3 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/ENSET docs/tp4 JAVA.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/documents_index.faiss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/faiss_index.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/gemini_api.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/import_documents.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/templates/indextest.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ChatbotProject_Server/testchat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ensetproject/chatbotedu/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/ensetproject/chatbotedu/fxml/chat-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/ensetproject/chatbotedu/fxml/chat-view.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +92,10 @@
     &quot;accountId&quot;: &quot;8904d0c5-c231-444a-8b50-81b241eea60e&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk-21/lib/src.zip!/java.base/java/lang/ClassLoader.java" root0="SKIP_INSPECTION" />
+    <setting file="jar://$PROJECT_DIR$/../../../../Program Files/Java/jdk-21/lib/src.zip!/java.base/jdk/internal/loader/ClassLoaders.java" root0="SKIP_INSPECTION" />
+  </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -55,19 +114,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.ChatbotApp.executor": "Run",
-    "Application.HelloApplication.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ChatbotApp.executor&quot;: &quot;Run&quot;,
+    &quot;Application.HelloApplication.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Lenovo\IdeaProjects\chatbotEdu\src\main" />
       <recent name="C:\Users\Lenovo\IdeaProjects\chatbotEdu\src\main\java\ensetproject\chatbotedu\database" />
       <recent name="C:\Users\Lenovo\IdeaProjects\chatbotEdu\src\main\java\ensetproject\chatbotedu\controller" />
     </key>
@@ -113,11 +173,31 @@
       <option name="project" value="LOCAL" />
       <updated>1736119839277</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="chat bot with basic rag faiss , remain mages">
+      <option name="closed" value="true" />
+      <created>1736155250299</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1736155250299</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="chat bot just set with gemini api , no specification for generation domain yet" />
-    <option name="LAST_COMMIT_MESSAGE" value="chat bot just set with gemini api , no specification for generation domain yet" />
+    <MESSAGE value="chat bot with basic rag faiss , remain mages" />
+    <option name="LAST_COMMIT_MESSAGE" value="chat bot with basic rag faiss , remain mages" />
   </component>
 </project>
