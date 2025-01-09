@@ -119,7 +119,7 @@ Backend ↔ Moteur multimodal (CLIP / Gemini Vision)
 
 ## 👨‍💻 Contributeurs
 - **TANGARA YOUSSOUF** - Développeur principal.
-- - **TSEH KOKOU BENOIT** - Développeur principal.
+- **TSEH KOKOU BENOIT** - Développeur principal.
 
 ---
 
