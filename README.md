@@ -96,17 +96,19 @@ Backend ↔ Moteur multimodal (CLIP / Gemini Vision)
    - Mettez à jour le fichier de configuration avec vos identifiants.
 
 4. Compilez et exécutez le frontend :
+   - ouvrir le projet avec intelijIdea ou eclipse , après execute le chatbotApp.app
+   - ou utiliser cmd si mvn est installer 
    ```bash
    mvn install
    mvn javafx:run
    ```
-5. Lancez le serveur backend mais avant de lancer le server il faut executer import_documents.py et aussi faiss_index.py:
+6. Lancez le serveur backend mais avant de lancer le server il faut executer import_documents.py et aussi faiss_index.py:
    ```bash
    python import_documents.py
    pyhton faiss_index.py
    python server.py
    ```
-
+  - dans import_documents.py met le chemin complet du repertoir contenant les fichier 
 ---
 
 ## 🧪 Tests et Évaluation
