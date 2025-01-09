@@ -1,9 +1,12 @@
 package ensetproject.chatbotedu.controller;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.*;
@@ -23,16 +26,17 @@ import java.util.concurrent.TimeUnit;
 import ensetproject.chatbotedu.database.DatabaseConnection;
 import okhttp3.*;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.commonmark.node.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
 public class ChatController {
 
     @FXML
     private ListView<String> historyListView;
-
-    @FXML
-    private ListView<String> chatListView;
 
     @FXML
     private TextArea chatTextArea;
@@ -46,6 +50,15 @@ public class ChatController {
     @FXML
     private TextArea documentTextArea;
 
+    @FXML
+    private WebView chatWebView; // Pour format html
+    private WebEngine chatEngine;
+
+    @FXML
+    private ProgressIndicator progressIndicator;
+
+    // Stocker le contenu HTML du chat
+    private StringBuilder chatContent ;
 
     private ObservableList<String> historyMessages = FXCollections.observableArrayList();
     private ObservableList<String> chatMessages = FXCollections.observableArrayList();
@@ -56,31 +69,22 @@ public class ChatController {
     @FXML
     public void initialize() {
         historyListView.setItems(historyMessages);
-        chatListView.setItems(chatMessages);
 
-        // Custom cell factory for better message styling
-        chatListView.setCellFactory(listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    if (item.startsWith("Vous : ")) {
-                        setStyle("-fx-text-fill: blue; -fx-alignment: CENTER-RIGHT;");
-                    } else {
-                        setStyle("-fx-text-fill: green; -fx-alignment: CENTER-LEFT;");
-                    }
-                }
-            }
-        });
+        chatEngine = chatWebView.getEngine();
 
+        // Préparer le contenu HTML
+        chatContent = new StringBuilder();
+        chatContent.append("<html><head>")
+                .append("<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'>")
+                .append("</head><body style='font-family: Arial; font-size: 14px;'>");
+
+        // Charger le contenu initial
+        chatEngine.loadContent(chatContent.toString() + "</body></html>");
         // Charger l'historique des messages depuis la base de données
         loadChatHistory();
     }
 
+    // clas
     @FXML
     public void handleSendMessage() {
         String userMessage = chatTextArea.getText().trim();
@@ -94,8 +98,12 @@ public class ChatController {
         String formattedUserMessage = formatMessageToMaxLength(userMessage);
         chatMessages.add("Vous : " + formattedUserMessage);
 
+        // Ajouter le message de l'utilisateur dans le chat
+        addMessageToChat(userMessage, true);
+
         // Sauvegarder le message utilisateur dans la base de données
         saveMessageToDatabase(userMessage, "user");
+
         RAGResponse ragResponse ;
         // Envoyer le fichier sélectionné (s'il existe) et le message
         if (selectedFile != null) {
@@ -107,13 +115,17 @@ public class ChatController {
              ragResponse = generateResponseFromServer(userMessage);
         }
 
+        // Lorsque la tâche est terminée, masquer l'indicateur
         if (ragResponse != null) {
             // Récupérer la réponse et les documents consultés
             String chatbotResponse = ragResponse.getResponse();
             List<String> consultedDocuments = ragResponse.getConsultedDocuments();
 
+            // Convertir le Markdown en HTML
+            chatbotResponse = convertMarkdownToHtml(chatbotResponse);
+
             // Convertir la réponse en texte lisible
-            chatbotResponse = convertUnicodeToReadable(chatbotResponse);
+    //        chatbotResponse = convertUnicodeToReadable(chatbotResponse);
 
             // Formater la réponse pour qu'elle n'excède pas 100 caractères par ligne
             String formattedResponse = formatMessageToMaxLength(chatbotResponse);
@@ -123,6 +135,12 @@ public class ChatController {
 
             // Sauvegarder la réponse du chatbot dans la base de données
             saveMessageToDatabase(chatbotResponse, "chatbot");
+
+            // Mettre à jour le WebView avec la réponse HTML
+            addMessageToChat(chatbotResponse, false);
+
+            // Lorsque la tâche est terminée, masquer l'indicateur
+        //    Platform.runLater(() -> progressIndicator.setVisible(false));
 
             // Ajouter les documents consultés au TextArea
             if (!consultedDocuments.isEmpty()) {
@@ -161,6 +179,7 @@ public class ChatController {
                 deleteChatHistory();
                 historyMessages.clear();  // Vider la vue de l'historique dans l'interface utilisateur
                 chatMessages.clear();
+                chatEngine.loadContent("<html><body></body></html>"); // Vider le WebView si nécessaire
             }
         });
     }
@@ -197,6 +216,8 @@ public class ChatController {
 
     public RAGResponse generateResponseFromServer(String question) {
         try {
+            // Afficher l'indicateur de chargement
+            progressIndicator.setVisible(true);
             // Configurer la connexion HTTP
             URL url = new URL("http://localhost:5000/rag"); // Adresse du serveur Python
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -275,6 +296,11 @@ public class ChatController {
     private void loadChatHistory() {
         String query = "SELECT * FROM chat_history ORDER BY timestamp ASC";
 
+        // Initialiser un StringBuilder pour construire le contenu HTML
+        StringBuilder historyContent = new StringBuilder("<html><head>")
+                .append("<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css'>")
+                .append("</head><body style='font-family: Arial; font-size: 14px;'>");
+
         try (Connection conn = DatabaseConnection.getConnection();
              java.sql.Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -282,18 +308,39 @@ public class ChatController {
             while (rs.next()) {
                 String sender = rs.getString("sender");
                 String message = rs.getString("message");
-                // Formater la réponse pour qu'elle n'excède pas 100 caractères par ligne
-                String formattedMess = formatMessageToMaxLength(message);
-                chatMessages.add((sender.equals("user") ? "Vous : " : "Chatbot : ") + formattedMess);
 
-                // Extraire un résumé ou des mots-clés pour l'historique
+                // Formater le message pour ne pas dépasser 100 caractères par ligne
+                String formattedMess = formatMessageToMaxLength(message);
+
+                // Ajouter le message formaté au chat
+                if (sender.equals("user")) {
+                    // Message de l'utilisateur avec icône et style
+                    historyContent.append("<p style='color: rgba(0, 0, 255, 0.7); font-style: italic; text-align: right;'>")
+                            .append("<i class='fa fa-user' style='margin-right: 8px; color: rgba(0, 0, 255, 0.7);'></i>")
+                            .append(formattedMess)
+                            .append("</p>");
+                } else {
+                    // Message du chatbot avec icône et style
+                    historyContent.append("<p>")
+                            .append("<i class='fa fa-robot' style='margin-right: 8px; color: green;'></i>")
+                            .append(formattedMess)
+                            .append("</p>");
+                }
+
+                // Extraire un résumé pour l'historique
                 String summary = createSummaryFromMessage(message);
-                if(sender.equals("user"))
+                if (sender.equals("user")) {
                     historyMessages.add(summary);  // Ajouter au message d'historique
+                }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        // Terminer le contenu HTML et le charger dans le WebView
+        historyContent.append("</body></html>");
+        chatEngine.loadContent(historyContent.toString());
     }
 
     private String createSummaryFromMessage(String message) {
@@ -459,4 +506,43 @@ public class ChatController {
 
         return formattedMessage.toString();
     }
+
+    // Méthode pour convertir le Markdown en HTML
+    public String convertMarkdownToHtml(String markdown) {
+        // Créer un parser pour le Markdown
+        Parser parser = Parser.builder().build();
+
+        // Convertir le texte Markdown en un arbre de nœuds
+        org.commonmark.node.Node document = parser.parse(markdown);
+
+        // Créer un renderer pour convertir le document en HTML
+        HtmlRenderer renderer = HtmlRenderer.builder().build();
+
+        // Convertir le document en HTML
+        return renderer.render(document);
+    }
+
+    // Fonction pour ajouter un message au WebView
+    public void addMessageToChat(String message, boolean isUser) {
+        // Style du message pour l'utilisateur
+        String formattedMessage;
+        if (isUser) {
+            formattedMessage = "<p style='color: rgba(0, 0, 255, 0.7); font-style: italic; text-align: right;'>"
+                    + "<i class='fa fa-user' style='margin-right: 8px; color: rgba(0, 0, 255, 0.7);'></i>"
+                    + message + "</p>";
+        } else {
+            // Style du message pour le chatbot
+            formattedMessage = "<p>"
+                    + "<i class='fa fa-robot' style='margin-right: 8px; color: green;'></i>"
+                    + message + "</p>";
+        }
+
+        // Ajouter le message au contenu
+        chatContent.append(formattedMessage);
+
+        // Mettre à jour le contenu dans le WebView
+        chatEngine.loadContent(chatContent.toString() + "</body></html>");
+    }
+
+
 }

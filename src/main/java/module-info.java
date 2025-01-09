@@ -14,6 +14,7 @@ module ensetproject.chatbotedu {
     requires org.json;
     requires okhttp3;
     requires jdk.httpserver;
+    requires org.commonmark;
 
     opens ensetproject.chatbotedu to javafx.fxml;
     exports ensetproject.chatbotedu;

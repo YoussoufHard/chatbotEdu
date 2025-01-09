@@ -15,4 +15,9 @@ public class MessageFormatter {
         }
         return formatted.toString().trim();
     }
+
+    public static String formatTimestamp(long l) {
+        // le code ici
+        return null;
+    }
 }

@@ -11,7 +11,7 @@ db_config = {
 }
 
 # Chemin vers le dossier contenant les documents
-directory = r'C:\Users\Lenovo\Documents\II-BDCC ENSET\BIG DATA S3\S3_2024-2025\POO JAVA\ChatbotProject\ENSET docs'
+directory = r'C:\Users\Lenovo\Documents\II-BDCC ENSET\BIG DATA S3\S3_2024-2025\POO JAVA\ChatbotProject_server\ENSET docs'
 
 # Connexion à la base de données MySQL
 def connect_to_db():

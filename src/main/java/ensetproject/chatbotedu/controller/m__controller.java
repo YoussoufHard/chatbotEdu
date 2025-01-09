@@ -1,4 +1,4 @@
-package ensetproject.chatbotedu.controller;
+/*package ensetproject.chatbotedu.controller;
 
 import ensetproject.chatbotedu.model.ChatMessage;
 import ensetproject.chatbotedu.model.RAGResponse;
@@ -123,4 +123,4 @@ public class m__controller {
         selectedImage = null;
         imageLabel.setText("");
     }
-}
+} */
