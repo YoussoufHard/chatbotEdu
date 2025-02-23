@@ -1,4 +1,4 @@
-# ChatbotEdu - Chatbot Éducatif pour l'ENSET
+# Chatbot Éducatif pour l'ENSET
 
 **ChatbotEdu** est une application éducative innovante destinée à fournir des réponses pertinentes et contextualisées aux étudiants de l'ENSET. Ce projet exploite une architecture RAG (Retrieval-Augmented Generation) pour combiner un modèle pré-entraîné et des données documentaires enrichies issues de la base de données pédagogique de l'ENSET. L'application prend également en charge des fonctionnalités multimodales, permettant des interactions via texte, documents et images.
 
